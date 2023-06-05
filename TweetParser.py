@@ -105,14 +105,14 @@ def get_multiple_users_tweets_async(usernames: list, save_html: bool = False):
 
     for i in range(0, len(usernames), max_n_threads):
         for j in range(i, min(i+max_n_threads, len(usernames))):
-            print(f"Getting tweets for {usernames[j]} using thread {j}")
+            print(f"Getting tweets for {usernames[j]} using Thread-{j+1}")
             thread = threading.Thread(target=get_user_tweets, args=(usernames[j], tweet_list, j))
             threads.append(thread)
             thread.start()
 
         for thread in threads:
             thread.join()
-            print(f"Thread {thread.name} finished")
+            print(f"{thread.name.split()[0]} finished")
 
     time.sleep(1)
 
@@ -123,5 +123,7 @@ def get_multiple_users_tweets_async(usernames: list, save_html: bool = False):
     if save_html:
         with open('tweets.html', 'w', encoding="utf-8") as file:
             file.write(t)
+
+    print("Finished getting tweets")
 
     return t

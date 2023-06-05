@@ -10,9 +10,12 @@ def get_and_parse_tweets(usernames: list):
 
 
 def main():
-    usernames = ["beratfromearth", "joisino_en", "jayzpio", "dair_ai", "LangChainAI", "TheBlokeAI", "camenduru", "sama"]
     # usernames = ["beratfromearth", "elonmusk"]
     # usernames = ["beratfromearth"]
+    usernames = ["beratfromearth", "joisino_en", "jayzpio", "dair_ai",
+                 "LangChainAI", "TheBlokeAI", "sama", "huggingface"]
+
+    usernames = list(set(usernames))
 
     parsed_tweets = get_and_parse_tweets(usernames=usernames)
     file = pc.render_and_save_html(tweets=parsed_tweets)
