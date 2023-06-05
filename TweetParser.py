@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 from parsel import Selector
 import time
+import threading
 
 
 def parse_tweets(tweets: str):
@@ -46,7 +47,7 @@ def parse_tweets(tweets: str):
     return results
 
 
-def get_user_tweets(username: str):
+def get_user_tweets(username: str, tweet_list: list, index: int):
     with sync_playwright() as p:
         URL = f"https://twitter.com/{username}"
         N_TWEETS = 5
@@ -55,17 +56,17 @@ def get_user_tweets(username: str):
         page = browser.new_page()
         page.goto(url=URL)
 
+        time.sleep(1)
+
         tweets = ""
         for i in range(N_TWEETS):
             page.keyboard.down("PageDown")
+            time.sleep(0.2)
             tweet = page.locator(
                 f'xpath=//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div/section/div/div/div[{i+1}]')
             tweets += tweet.inner_html() + "\n\n"
 
-        # with open('tweets.html', 'w', encoding="utf-8") as file:
-            # file.write(tweets)
-
-        return tweets
+        tweet_list[index] = tweets
 
 
 def get_multiple_users_tweets(usernames: list, save_html: bool = False):
@@ -78,6 +79,8 @@ def get_multiple_users_tweets(usernames: list, save_html: bool = False):
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             page.goto(url=URL)
+
+            time.sleep(1)
 
             tweets = ""
             for i in range(N_TWEETS):
@@ -93,3 +96,32 @@ def get_multiple_users_tweets(usernames: list, save_html: bool = False):
                 file.write(t)
 
         return t
+
+
+def get_multiple_users_tweets_async(usernames: list, save_html: bool = False):
+    max_n_threads = 5
+    threads = []
+    tweet_list = [None] * len(usernames)
+
+    for i in range(0, len(usernames), max_n_threads):
+        for j in range(i, min(i+max_n_threads, len(usernames))):
+            print(f"Getting tweets for {usernames[j]} using thread {j}")
+            thread = threading.Thread(target=get_user_tweets, args=(usernames[j], tweet_list, j))
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+            print(f"Thread {thread.name} finished")
+
+    time.sleep(1)
+
+    t = ""
+    for tweet in tweet_list:
+        t += tweet
+
+    if save_html:
+        with open('tweets.html', 'w', encoding="utf-8") as file:
+            file.write(t)
+
+    return t

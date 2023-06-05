@@ -3,14 +3,14 @@ import PageCreator as pc
 
 
 def get_and_parse_tweets(usernames: list):
-    tweets = tp.get_multiple_users_tweets(usernames=usernames, save_html=False)
+    tweets = tp.get_multiple_users_tweets_async(usernames=usernames, save_html=False)
     parsed_tweets = tp.parse_tweets(tweets=tweets)
 
     return parsed_tweets
 
 
 def main():
-    usernames = ["joisino_en", "jayzpio", "dair_ai", "LangChainAI", "TheBlokeAI", "camenduru", "sama"]
+    usernames = ["beratfromearth", "joisino_en", "jayzpio", "dair_ai", "LangChainAI", "TheBlokeAI", "camenduru", "sama"]
     # usernames = ["beratfromearth", "elonmusk"]
     # usernames = ["beratfromearth"]
 
